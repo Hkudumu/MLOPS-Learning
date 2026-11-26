@@ -1,0 +1,112 @@
+
+Github URL: iam-veeramalla-istio-guide/install-and-setup/02-demo-app.yaml at main · iam-mayur/iam-veeramalla-istio-guide
+
+helm install istio-base istio/base -n istio-system --set defaultRevision=default  --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/config 
+ 
+helm install istiod istio/istiod --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/config -n istio-system 
+
+
+Creating a label at a namespace level
+
+kubectl label namespace ns-book  istio-injection=enabled --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/config
+
+
+kubectl apply --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/config -n 
+
+
+Two Container will be created with one with Convey Side car container to the pod
+
+hkudumu@LMOLHPLTGCC5WYZ:~$ kubectl --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/config -n ns-book get po
+NAME                              READY   STATUS    RESTARTS   AGE
+details-v1-8568f878f4-dtg55       2/2     Running   0          48s
+productpage-v1-755b69c8f5-vt8st   2/2     Running   0          38s
+ratings-v1-7865888dbb-ncn7l       2/2     Running   0          46s
+reviews-v1-cb5cb5dc4-wlq69        2/2     Running   0          43s
+reviews-v2-7d6b8df678-dz49h       2/2     Running   0          42s
+reviews-v3-56cd95bddb-wns25       2/2     Running   0          41s
+
+kiali is a monitoring tool which is mostly used for the istio service mesh
+
+hkudumu@LMOLHPLTGCC5WYZ:~$ kubectl --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/config -n istio-system apply -f /mnt/c/Users/Hemanthkumar.Kudumu/kiali.yaml
+serviceaccount/kiali created
+configmap/kiali created
+clusterrole.rbac.authorization.k8s.io/kiali created
+clusterrolebinding.rbac.authorization.k8s.io/kiali created
+service/kiali created
+deployment.apps/kiali created
+hkudumu@LMOLHPLTGCC5WYZ:~$ kubectl --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/config -n istio-system get po
+NAME                     READY   STATUS    RESTARTS   AGE
+istiod-d84969f89-9x774   1/1     Running   0          30m
+kiali-6ccf7677d8-ltjtx   1/1     Running   0          62s
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: reviews
+spec:
+  hosts:
+    - reviews
+  http:
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+      weight: 0
+    - destination:
+        host: reviews
+        subset: v3
+      weight: 100
+
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: reviews
+spec:
+  host: reviews
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v3
+    labels:
+      version: v3
+
+
+🔹 Traffic Management
+	• Fine-grained traffic routing → Route traffic by version, headers, user identity, percentage (canary, A/B testing).
+	• Fault injection → Simulate failures (delays, aborts) to test resilience.
+	• Traffic mirroring (shadowing) → Send a copy of live traffic to a new service version for safe testing.
+	• Outlier detection & circuit breaking → Automatically detect unhealthy instances and prevent cascading failures.
+	• Retries & timeouts → Configurable request retries, failover, and response timeouts.
+	• Load balancing → Multiple algorithms (round robin, random, least requests).
+
+🔹 Security
+	• mTLS (mutual TLS) → Encrypts pod-to-pod traffic automatically.
+	• Identity & authentication → Uses SPIFFE IDs for workload identities.
+	• Authorization policies (RBAC) → Fine-grained access control (e.g., “service A can call service B only on GET /api”).
+	• Certificate management → Automatic key/cert rotation and distribution.
+	• Zero-trust networking → Service-to-service communication is verified and encrypted by default.
+
+🔹 Observability
+	• Telemetry collection → Automatic metrics (latency, error rate, traffic volume).
+	• Distributed tracing → Native integration with Jaeger/Zipkin/Tempo for request tracing.
+	• Access & audit logging → Capture detailed logs of service-to-service calls.
+	• Dashboards & monitoring → Rich visualization via Prometheus + Grafana integration.
+
+🔹 Resilience & Reliability
+	• Service discovery & dynamic routing → No need to hardcode endpoints; Istio discovers them.
+	• Self-healing traffic flow → Removes unhealthy instances from routing automatically.
+	• Global failover → Cross-cluster or multi-region routing.
+	• Rate limiting & quotas → Control traffic flow per service or user.
+
+🔹 Multi-Cluster & Multi-Network
+	• Multi-cluster service mesh → Seamless service-to-service communication across Kubernetes clusters.
+	• Mesh expansion → Extend Istio to run on VMs and bare metal (not just Kubernetes).
+	• Federation → Connect multiple meshes while keeping them independent.
+
+🔹 Extensibility
+	• Envoy Filters → Custom traffic manipulation using Envoy proxy filters.
+	• WebAssembly (Wasm) extensions → Add custom logic (auth, telemetry, transformations).
+	• Integration with external systems → Works with external cert managers, policy engines, and identity providers.
+

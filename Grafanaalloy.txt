@@ -1,0 +1,49 @@
+kubectl create configmap --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/DEV-config --namespace ns-monitoring alloy-config "--from-file=configmap_pod_traces.alloy=/mnt/c/Users/Hemanthkumar.Kudumu/source/alloy/configmap_pod_traces.alloy"
+
+kubectl --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/Dev-config  -n ns-monitoring delete configmap alloy-config
+
+
+
+
+helm upgrade --install --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/DEV-config --namespace ns-monitoring grafana-alloy grafana/alloy -f /mnt/c/Users/Hemanthkumar.Kudumu/source/alloy/grafana-alloy-values.yaml
+
+
+kubectl --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/dev-config -n ns-monitoring logs grafana-alloy-nqjgf
+
+
+
+Jumpmind:
+helm upgrade --install --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/jumpmind-config --namespace ns-grafana-alloy grafana-dev-alloy grafana/alloy -f /mnt/c/Users/Hemanthkumar.Kudumu/source/alloy/jumpmind-metrics/grafana-alloy-values.yaml
+
+
+
+kubectl create configmap --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/jumpmind-config --namespace ns-grafana-alloy alloy-config "--from-file=configmap_pod_traces.alloy=/mnt/c/Users/Hemanthkumar.Kudumu/source/alloy/jumpmind-metrics/configmap_pod_traces.alloy"
+
+
+
+kubectl --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/jumpmind-config --namespace ns-grafana-alloy delete configmap alloy-config
+
+
+
+kubectl --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/jumpmind-config -n  ns-pos-alloy create secret generic db-user-pass --from-literal=username=jmcowner --from-literal=password='Welcome#123'
+
+
+ helm upgrade --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/jumpmind-config --namespace ns-pos-alloy --install -f /mnt/c/Users/Hemanthkumar.Kudumu/source/repos/jmc-lmg/pipeline/values-dev.yaml --version 20240924.1 --set env=dev --set image.repository=lmapaz1acrdevsitjmccld.azurecr.io/pos-dev --set image.tag=20240924.1 pos-dev /mnt/c/Users/Hemanthkumar.Kudumu/source/repos/jmc-lmg/helm/pos
+
+
+
+
+
+kubectl --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/jumpmind-config --namespace ns-monitoring delete configmap alloy-config
+
+kubectl create configmap --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/jumpmind-config --namespace ns-monitoring  alloy-config "--from-file=configmap_pod_traces.alloy=/mnt/c/Users/Hemanthkumar.Kudumu/source/repos/DevOps-Artifacts/prometheus/grafana-alloy/Jumpmind/Dev/configmap_otel_logs_metrics.alloy"
+
+
+helm upgrade --install --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/jumpmind-config --namespace ns-monitoring  grafana-alloy grafana/alloy -f /mnt/c/Users/Hemanthkumar.Kudumu/source/repos/DevOps-Artifacts/prometheus/grafana-alloy/Jumpmind/Dev/grafana-alloy-values.yaml
+
+
+helm upgrade --install --kubeconfig=/mnt/c/Users/Hemanthkumar.Kudumu/.kube/jumpmind-config --namespace ns-monitoring tempo grafana/tempo-distributed -f /mnt/c/Users/Hemanthkumar.Kudumu/source/alloy/tempo-custom.yaml
+
+
+
+
